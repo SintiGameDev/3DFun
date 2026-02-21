@@ -1,6 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.SceneManagement; // <-- NEU: Für den Szenenwechsel
-using System.Collections.Generic;
 
 /// <summary>
 /// EnemyController – bewegt den Enemy auf ein Ziel zu und weicht dabei
@@ -14,10 +12,6 @@ using System.Collections.Generic;
 [RequireComponent(typeof(CharacterController))]
 public class EnemyController : MonoBehaviour
 {
-    // ── Game Logic ────────────────────────────────────────────────────────
-    [Header("Game Logic")]
-    [Tooltip("Name der Szene, die bei Kollision mit dem Spieler geladen wird")]
-    public string loseSceneName = "EndScene";
     // ── Ziel ──────────────────────────────────────────────────────────────
     [Header("Ziel")]
     [Tooltip("Transform des Ziels, auf das der Enemy zulaufen soll")]
@@ -114,6 +108,29 @@ public class EnemyController : MonoBehaviour
     [Range(0f, 1f)]
     public float voiceVolume = 1f;
 
+    // ── Sichtlinie & Alert Audio ──────────────────────────────────────────
+    [Header("Sichtlinie & Alert Audio")]
+    [Tooltip("Maximale Distanz, in der der Spieler gesehen werden kann")]
+    public float sightRange = 15f;
+
+    [Tooltip("Layer-Maske die als Sichtblockierung gilt (z.B. Wände)")]
+    public LayerMask sightBlockLayers;
+
+    [Tooltip("Soundeffekte die abgespielt werden wenn der Spieler in Sichtweite ist")]
+    public AudioClip[] alertClips;
+
+    [Tooltip("Minimale Wartezeit zwischen Alert-Sounds in Sekunden")]
+    [Range(0.5f, 20f)]
+    public float alertIntervalMin = 3f;
+
+    [Tooltip("Maximale Wartezeit zwischen Alert-Sounds in Sekunden")]
+    [Range(0.5f, 30f)]
+    public float alertIntervalMax = 8f;
+
+    [Tooltip("Lautstärke der Alert-Soundeffekte")]
+    [Range(0f, 1f)]
+    public float alertVolume = 1f;
+
     // ── Debug ─────────────────────────────────────────────────────────────
     [Header("Debug")]
     [Tooltip("Raycasts im Scene-View anzeigen")]
@@ -140,22 +157,11 @@ public class EnemyController : MonoBehaviour
     private float _voiceTimer;
     private int _lastVoiceIndex = -1;
 
-
-    // ─────────────────────────────────────────────────────────────────────
-    /// <summary>
-    /// Wird von Unity aufgerufen, wenn der CharacterController während 
-    /// seiner Bewegung gegen einen anderen Collider stößt.
-    /// </summary>
-    void OnControllerColliderHit(ControllerColliderHit hit)
-    {
-        // Prüfen, ob das getroffene Objekt den Tag "Player" hat
-        if (hit.gameObject.CompareTag("Player"))
-        {
-            // Szene laden
-            SceneManager.LoadScene(loseSceneName);
-        }
-    }
-
+    // Alert State
+    private AudioSource _alertAudioSource;
+    private float _alertTimer;
+    private int _lastAlertIndex = -1;
+    private bool _playerInSight;
 
     // ─────────────────────────────────────────────────────────────────────
     void Awake()
@@ -177,12 +183,18 @@ public class EnemyController : MonoBehaviour
         _voiceAudioSource = gameObject.AddComponent<AudioSource>();
         _voiceAudioSource.playOnAwake = false;
         _voiceAudioSource.spatialBlend = 1f; // 3D-Sound
+
+        // Separater AudioSource für Alert-Sounds
+        _alertAudioSource = gameObject.AddComponent<AudioSource>();
+        _alertAudioSource.playOnAwake = false;
+        _alertAudioSource.spatialBlend = 1f; // 3D-Sound
     }
 
     void Start()
     {
         _lastPosition = transform.position;
         _voiceTimer = Random.Range(voiceIntervalMin, voiceIntervalMax);
+        _alertTimer = Random.Range(alertIntervalMin, alertIntervalMax);
     }
 
     void Update()
@@ -281,6 +293,49 @@ public class EnemyController : MonoBehaviour
             PlayVoiceLine();
             _voiceTimer = Random.Range(voiceIntervalMin, voiceIntervalMax);
         }
+
+        // ── 8. Sichtlinie prüfen & Alert Audio ────────────────────────
+        _playerInSight = CheckLineOfSight();
+
+        if (_playerInSight)
+        {
+            _alertTimer -= Time.deltaTime;
+            if (_alertTimer <= 0f)
+            {
+                PlayAlertSound();
+                _alertTimer = Random.Range(alertIntervalMin, alertIntervalMax);
+            }
+        }
+        else
+        {
+            // Timer zurücksetzen wenn Spieler nicht sichtbar
+            _alertTimer = Random.Range(alertIntervalMin, alertIntervalMax);
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    /// <summary>
+    /// Prüft per Raycast ob der Spieler in Sichtweite und nicht verdeckt ist.
+    /// </summary>
+    bool CheckLineOfSight()
+    {
+        if (target == null) return false;
+
+        Vector3 dirToTarget = target.position - transform.position;
+        float distToTarget = dirToTarget.magnitude;
+
+        // Außerhalb der Sichtweite
+        if (distToTarget > sightRange) return false;
+
+        // Raycast auf Spieler – trifft er ein Sicht-blockierendes Objekt zuerst?
+        if (Physics.Raycast(transform.position, dirToTarget.normalized,
+                            out RaycastHit hit, distToTarget, sightBlockLayers))
+        {
+            // Etwas blockiert die Sicht
+            return false;
+        }
+
+        return true;
     }
 
     // ─────────────────────────────────────────────────────────────────────
@@ -335,6 +390,33 @@ public class EnemyController : MonoBehaviour
         _voiceAudioSource.volume = voiceVolume;
         _voiceAudioSource.pitch = 1f;
         _voiceAudioSource.PlayOneShot(voiceClips[index]);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    /// <summary>Spielt einen zufälligen Alert-Clip ab – nur wenn kein anderer Alert läuft.</summary>
+    void PlayAlertSound()
+    {
+        if (alertClips == null || alertClips.Length == 0) return;
+        if (_alertAudioSource == null) return;
+
+        // Nicht unterbrechen wenn noch ein Clip läuft
+        if (_alertAudioSource.isPlaying) return;
+
+        int index;
+        if (alertClips.Length == 1)
+        {
+            index = 0;
+        }
+        else
+        {
+            do { index = Random.Range(0, alertClips.Length); }
+            while (index == _lastAlertIndex);
+        }
+        _lastAlertIndex = index;
+
+        _alertAudioSource.volume = alertVolume;
+        _alertAudioSource.pitch = 1f;
+        _alertAudioSource.PlayOneShot(alertClips[index]);
     }
 
     // ─────────────────────────────────────────────────────────────────────
@@ -403,6 +485,14 @@ public class EnemyController : MonoBehaviour
         {
             Gizmos.color = _escapeTimer > 0f ? Color.magenta : Color.cyan;
             Gizmos.DrawRay(transform.position, _desiredDirection * 2f);
+        }
+
+        // Sichtlinie zum Spieler
+        if (Application.isPlaying && target != null)
+        {
+            Gizmos.color = _playerInSight ? Color.red : new Color(1f, 0.5f, 0f, 0.4f);
+            Gizmos.DrawLine(transform.position, target.position);
+            Gizmos.DrawWireSphere(transform.position, sightRange);
         }
     }
 }
