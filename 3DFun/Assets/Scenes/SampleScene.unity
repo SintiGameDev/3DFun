@@ -509,6 +509,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Green Carpet (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 5481594908821076959, guid: f568ed14e719cb1418317c3e488b6e26, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2119,6 +2123,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Mat 2 (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 4777531739198478126, guid: 9559997e334ac3649865a3c96f21cb00, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 5262143222270135700, guid: 9559997e334ac3649865a3c96f21cb00, type: 3}
       propertyPath: m_LocalScale.x
       value: 1.7465999
@@ -2290,6 +2298,10 @@ PrefabInstance:
     - target: {fileID: 4376469191361449896, guid: 896f8bcbfc5015c4ca4e29879a90badd, type: 3}
       propertyPath: m_Name
       value: Carpet
+      objectReference: {fileID: 0}
+    - target: {fileID: 4376469191361449896, guid: 896f8bcbfc5015c4ca4e29879a90badd, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2683,6 +2695,10 @@ PrefabInstance:
     - target: {fileID: 1749199228688701789, guid: 102829b23f65b8447a79bc5a9c8453ce, type: 3}
       propertyPath: m_Name
       value: Toast Mat
+      objectReference: {fileID: 0}
+    - target: {fileID: 1749199228688701789, guid: 102829b23f65b8447a79bc5a9c8453ce, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -4135,6 +4151,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Mat 2 (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 4777531739198478126, guid: 9559997e334ac3649865a3c96f21cb00, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 5262143222270135700, guid: 9559997e334ac3649865a3c96f21cb00, type: 3}
       propertyPath: m_LocalScale.x
       value: 1.7466002
@@ -4829,6 +4849,10 @@ PrefabInstance:
     - target: {fileID: 4777531739198478126, guid: 9559997e334ac3649865a3c96f21cb00, type: 3}
       propertyPath: m_Name
       value: Mat 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4777531739198478126, guid: 9559997e334ac3649865a3c96f21cb00, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 5262143222270135700, guid: 9559997e334ac3649865a3c96f21cb00, type: 3}
       propertyPath: m_LocalScale.x
@@ -5833,6 +5857,7 @@ GameObject:
   - component: {fileID: 1469492689}
   - component: {fileID: 1469492688}
   - component: {fileID: 1469492687}
+  - component: {fileID: 1469492691}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -5879,14 +5904,36 @@ MonoBehaviour:
   moveSpeed: 2
   rotationSpeed: 60
   gravity: 0
-  detectionRadius: 0.6
+  detectionRadius: 0.5
+  sphereCastRadius: 0.3
   rayCount: 9
   fieldOfView: 70.9
   obstacleLayers:
     serializedVersion: 2
     m_Bits: 1
-  avoidanceStrength: 4
+  avoidanceStrength: 5
+  stuckTimeout: 0.5
+  stuckSpeedThreshold: 0.1
+  escapeDuration: 0.5
   walkingBoolName: isWalking
+  footstepAudioSource: {fileID: 1469492691}
+  footstepClips:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  footstepInterval: 0.4
+  footstepVolume: 0.8
+  volumeVariation: 0.1
+  pitchVariation: 0.1
+  voiceClips:
+  - {fileID: 8300000, guid: bf22ce1e92d68f34694ea8b65f17e9a5, type: 3}
+  - {fileID: 8300000, guid: 1d5ab49578162ce49a1fcc4d6daba534, type: 3}
+  - {fileID: 8300000, guid: a95e7d96f003413459b5e9b82dc69307, type: 3}
+  - {fileID: 8300000, guid: f11d1656d063dab41a6035a9607fff53, type: 3}
+  - {fileID: 8300000, guid: dcafdec92ad660f4b828a745aad71974, type: 3}
+  voiceIntervalMin: 5
+  voiceIntervalMax: 15
+  voiceVolume: 1
   showGizmos: 1
 --- !u!143 &1469492689
 CharacterController:
@@ -5929,6 +5976,103 @@ Transform:
   - {fileID: 190047285}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!82 &1469492691
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1469492686}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 57
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 200
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1001 &1472729503
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6962,6 +7106,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Rectangle Carpet
       objectReference: {fileID: 0}
+    - target: {fileID: 3653873085527608113, guid: 724551b25ffaf0241a3672619649fb32, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 4179053047060337035, guid: 724551b25ffaf0241a3672619649fb32, type: 3}
       propertyPath: m_LocalScale.x
       value: 1.9551002
@@ -7088,6 +7236,10 @@ PrefabInstance:
     - target: {fileID: 4777531739198478126, guid: 9559997e334ac3649865a3c96f21cb00, type: 3}
       propertyPath: m_Name
       value: Mat 2 (3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4777531739198478126, guid: 9559997e334ac3649865a3c96f21cb00, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 5262143222270135700, guid: 9559997e334ac3649865a3c96f21cb00, type: 3}
       propertyPath: m_LocalScale.x
@@ -7366,6 +7518,10 @@ PrefabInstance:
     - target: {fileID: 5481594908821076959, guid: f568ed14e719cb1418317c3e488b6e26, type: 3}
       propertyPath: m_Name
       value: Green Carpet
+      objectReference: {fileID: 0}
+    - target: {fileID: 5481594908821076959, guid: f568ed14e719cb1418317c3e488b6e26, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -8292,6 +8448,10 @@ PrefabInstance:
     - target: {fileID: 5481594908821076959, guid: f568ed14e719cb1418317c3e488b6e26, type: 3}
       propertyPath: m_Name
       value: Green Carpet (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5481594908821076959, guid: f568ed14e719cb1418317c3e488b6e26, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
