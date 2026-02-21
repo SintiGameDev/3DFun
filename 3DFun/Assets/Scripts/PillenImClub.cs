@@ -1,10 +1,16 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.SocialPlatforms.Impl;
+using TMPro;
 
 public class PillenImClub : MonoBehaviour
 {
     // Singleton-Instanz für den globalen, referenzfreien Zugriff durch die Items
     public static PillenImClub Instance { get; private set; }
+
+    public GameObject UIGameObject;
+    public TextMeshProUGUI scoreUi;
 
     [Header("Referenzen")]
     [Tooltip("Das Prefab des Collectibles, das gespawnt werden soll.")]
@@ -29,10 +35,13 @@ public class PillenImClub : MonoBehaviour
             return;
         }
         Instance = this;
+        scoreUi = UIGameObject.GetComponent<TextMeshProUGUI>();
     }
 
     private void Start()
     {
+        
+
         if (spawnPoints == null || spawnPoints.Length == 0)
         {
             Debug.LogError("CollectibleManager: Keine Spawnpunkte zugewiesen!");
@@ -46,6 +55,29 @@ public class PillenImClub : MonoBehaviour
 
         SpawnNextCollectible();
     }
+
+    private void Update()
+    {
+        //scoreUi = UIGameObject.GetComponent<TextMeshPro>();
+        //// Aktualisiert die Score-Anzeige
+        //scoreUi.text = $"Pillen: {_currentScore} / {targetScore}";
+
+
+
+    // Zuweisung (unter der Annahme, dass UIGameObject das GameObject "Score" referenziert)
+    scoreUi = UIGameObject.GetComponent<TextMeshProUGUI>();
+
+// Aktualisiert die Score-Anzeige
+if (scoreUi != null)
+{
+    scoreUi.text = $"Pillen: {_currentScore} / {targetScore}";
+}
+else
+{
+    Debug.LogError("TextMeshProUGUI Komponente auf dem UIGameObject nicht gefunden.");
+}
+    }
+
 
     /// <summary>
     /// Wird vom Collectible aufgerufen, sobald der Spieler es berührt.
