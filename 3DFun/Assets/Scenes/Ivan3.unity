@@ -964,7 +964,7 @@ MonoBehaviour:
   player: {fileID: 784263214}
   detectionRadius: 10
   catchRadius: 1.5
-  moveSpeed: 1
+  moveSpeed: 2
   rotationSpeed: 10
   endSceneName: EndScene
 --- !u!1 &1500104862
