@@ -1,123 +1,183 @@
-using UnityEngine;
-using UnityEngine.SceneManagement; // Wichtig für das Laden der Endsequenz
+//using System; // Für die Action-Callbacks
+//using UnityEngine;
+//using UnityEngine.AI;
+//using UnityEngine.SceneManagement;
 
-[RequireComponent(typeof(Animator))]
-public class EnemyController : MonoBehaviour
-{
-    [Header("Targeting & Radius")]
-    [Tooltip("Ziehen Sie das Spieler-GameObject hier hinein.")]
-    public Transform player;
-    [Tooltip("Ab dieser Distanz beginnt der Gegner zu laufen.")]
-    public float detectionRadius = 10f;
-    [Tooltip("Distanz, die als 'Berührung' gewertet wird, um die Sequenz zu starten.")]
-    public float catchRadius = 1.5f;
+//[RequireComponent(typeof(Animator))]
+//[RequireComponent(typeof(NavMeshAgent))]
+//[RequireComponent(typeof(PhysicalStatsLogic))] // Zwingend für das Asset
+//public class EnemyControllerNavMesh : MonoBehaviour
+//{
+//    [Header("Dependencies")]
+//    [Tooltip("Referenz zum NavLinkManager in der Szene.")]
+//    public NavLinkManager navLinkManager;
+//    public Transform player;
 
-    [Header("Movement")]
-    public float moveSpeed = 4f;
-    public float rotationSpeed = 10f;
+//    [Header("Targeting & Radius")]
+//    public float detectionRadius = 15f;
+//    public float catchRadius = 1.5f;
 
-    [Header("Scene Management")]
-    [Tooltip("Der exakte Name der Szene, die geladen werden soll.")]
-    public string endSceneName = "EndScene";
+//    [Header("Patrol Setup")]
+//    public Transform[] patrolPoints;
+//    public float waypointTolerance = 1.0f;
 
-    private Animator _animator;
-    private bool _isChasing = false;
-    private bool _isGameEnded = false;
+//    [Header("Movement Speeds")]
+//    public float runSpeed = 5f;
+//    public float walkSpeed = 2f;
 
-    // Animator Hashes (Performanter als String-Aufrufe im Update-Loop)
-    private readonly int _idleStateHash = Animator.StringToHash("Idle");
-    private readonly int _runStateHash = Animator.StringToHash("Run");
+//    [Header("Pathfinding Optimization")]
+//    [Tooltip("Wie oft pro Sekunde darf ein neuer Pfad berechnet werden? Verhindert Performance-Einbrüche.")]
+//    public float pathRequestCooldown = 0.5f;
 
-    void Start()
-    {
-        _animator = GetComponent<Animator>();
+//    [Header("Scene Management")]
+//    public string endSceneName = "EndScene";
 
-        // Fallback: Sucht den Spieler automatisch, falls er im Inspector nicht zugewiesen wurde
-        if (player == null)
-        {
-            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-            if (playerObj != null)
-            {
-                player = playerObj.transform;
-            }
-            else
-            {
-                Debug.LogError("EnemyController: Kein Spieler zugewiesen und kein Objekt mit Tag 'Player' gefunden!");
-            }
-        }
+//    // Components
+//    private Animator _animator;
+//    private NavMeshAgent _agent;
+//    private PhysicalStatsLogic _physicalStats;
 
-        // Setzt die Startanimation
-        _animator.Play(_idleStateHash);
-    }
+//    // State & Timers
+//    private bool _isGameEnded = false;
+//    private int _currentWaypointIndex = 0;
+//    private float _lastPathRequestTime = 0f;
 
-    void Update()
-    {
-        // Sicherheitsabbruch, wenn kein Spieler existiert oder das Spiel bereits beendet ist
-        if (player == null || _isGameEnded) return;
+//    private enum EnemyState { Idle, Patrolling, Chasing }
+//    private EnemyState _currentState = EnemyState.Idle;
 
-        // Distanz zum Spieler berechnen
-        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+//    // Animator Hashes
+//    private readonly int _idleStateHash = Animator.StringToHash("Idle");
+//    private readonly int _walkStateHash = Animator.StringToHash("Walk");
+//    private readonly int _runStateHash = Animator.StringToHash("Run");
 
-        if (distanceToPlayer <= catchRadius)
-        {
-            // Spieler erreicht
-            TriggerEndSequence();
-        }
-        else if (distanceToPlayer <= detectionRadius)
-        {
-            // Spieler im Sichtfeld -> Verfolgung aufnehmen
-            ChasePlayer();
-        }
-        else if (_isChasing)
-        {
-            // Optional: Wenn der Spieler den Radius wieder verlässt, bricht der Gegner ab
-            StopChasing();
-        }
-    }
+//    void Start()
+//    {
+//        _animator = GetComponent<Animator>();
+//        _agent = GetComponent<NavMeshAgent>();
+//        _physicalStats = GetComponent<PhysicalStatsLogic>();
 
-    private void ChasePlayer()
-    {
-        if (!_isChasing)
-        {
-            _isChasing = true;
-            _animator.Play(_runStateHash); // Animation wechseln
-        }
+//        if (player == null)
+//        {
+//            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+//            if (playerObj != null) player = playerObj.transform;
+//        }
 
-        // 1. Rotation zum Spieler (auf der Y-Achse isoliert, damit der Gegner nicht kippt)
-        Vector3 direction = (player.position - transform.position).normalized;
-        direction.y = 0;
+//        if (navLinkManager == null)
+//        {
+//            navLinkManager = FindObjectOfType<NavLinkManager>();
+//            if (navLinkManager == null) Debug.LogError("Kein NavLinkManager in der Szene gefunden!");
+//        }
 
-        if (direction != Vector3.zero)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(direction);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
-        }
+//        if (patrolPoints != null && patrolPoints.Length > 0)
+//        {
+//            ChangeState(EnemyState.Patrolling);
+//            RequestNewPath(patrolPoints[_currentWaypointIndex].position);
+//        }
+//        else
+//        {
+//            ChangeState(EnemyState.Idle);
+//        }
+//    }
 
-        // 2. Bewegung nach vorne
-        transform.position += transform.forward * moveSpeed * Time.deltaTime;
-    }
+//    void Update()
+//    {
+//        if (player == null || _isGameEnded || navLinkManager == null) return;
 
-    private void StopChasing()
-    {
-        _isChasing = false;
-        _animator.Play(_idleStateHash);
-    }
+//        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
-    private void TriggerEndSequence()
-    {
-        _isGameEnded = true; // Verhindert mehrfaches Triggern in nachfolgenden Frames
+//        // 1. Priorität: Berührung
+//        if (distanceToPlayer <= catchRadius)
+//        {
+//            TriggerEndSequence();
+//            return;
+//        }
 
-        // Hier wird die Szene geladen
-        SceneManager.LoadScene(endSceneName);
-    }
+//        // 2. Priorität: Verfolgung
+//        if (distanceToPlayer <= detectionRadius)
+//        {
+//            ChasePlayer();
+//        }
+//        // 3. Priorität: Patrouille
+//        else if (patrolPoints != null && patrolPoints.Length > 0)
+//        {
+//            Patrol();
+//        }
+//        else
+//        {
+//            ChangeState(EnemyState.Idle);
+//            _agent.ResetPath();
+//        }
+//    }
 
-    // Dieses Editor-Feature zeichnet die Radien im Scene-View zur leichteren visuellen Justierung
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, detectionRadius);
+//    private void Patrol()
+//    {
+//        ChangeState(EnemyState.Patrolling);
+//        _agent.speed = walkSpeed;
 
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, catchRadius);
-    }
-}
+//        // Prüfen, ob Agent am Ziel angekommen ist
+//        if (!_agent.pathPending && _agent.remainingDistance <= waypointTolerance)
+//        {
+//            _currentWaypointIndex = (_currentWaypointIndex + 1) % patrolPoints.Length;
+//            RequestNewPath(patrolPoints[_currentWaypointIndex].position);
+//        }
+//    }
+
+//    private void ChasePlayer()
+//    {
+//        ChangeState(EnemyState.Chasing);
+//        _agent.speed = runSpeed;
+
+//        // Pfad zum Spieler periodisch aktualisieren (Throttling für Performance)
+//        if (Time.time - _lastPathRequestTime >= pathRequestCooldown)
+//        {
+//            RequestNewPath(player.position);
+//        }
+//    }
+
+//    private void RequestNewPath(Vector3 targetPosition)
+//    {
+//        _lastPathRequestTime = Time.time;
+
+//        // Nutzt die API des Assets, um den Pfad anhand der PhysicalStats zu validieren
+//        navLinkManager.RequestPath(_physicalStats, targetPosition, (bool success) =>
+//        {
+//            if (success)
+//            {
+//                // Wenn das Asset den Pfad validiert hat, weisen wir den Agenten an, ihn zu laufen
+//                _agent.SetDestination(targetPosition);
+//            }
+//            else
+//            {
+//                Debug.LogWarning("Kein valider Pfad für die physikalischen Parameter des Gegners gefunden.");
+//            }
+//        });
+//    }
+
+//    private void ChangeState(EnemyState newState)
+//    {
+//        if (_currentState == newState) return;
+//        _currentState = newState;
+
+//        switch (_currentState)
+//        {
+//            case EnemyState.Idle: _animator.Play(_idleStateHash); break;
+//            case EnemyState.Patrolling: _animator.Play(_walkStateHash); break;
+//            case EnemyState.Chasing: _animator.Play(_runStateHash); break;
+//        }
+//    }
+
+//    private void TriggerEndSequence()
+//    {
+//        _isGameEnded = true;
+//        _agent.isStopped = true;
+//        SceneManager.LoadScene(endSceneName);
+//    }
+
+//    private void OnDrawGizmosSelected()
+//    {
+//        Gizmos.color = Color.yellow;
+//        Gizmos.DrawWireSphere(transform.position, detectionRadius);
+//        Gizmos.color = Color.red;
+//        Gizmos.DrawWireSphere(transform.position, catchRadius);
+//    }
+//}
