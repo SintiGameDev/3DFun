@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// EnemyController – bewegt den Enemy auf ein Ziel zu und weicht dabei
@@ -15,6 +16,10 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class EnemyController : MonoBehaviour
 {
+    // ── Game Logic ────────────────────────────────────────────────────────
+    [Header("Game Logic")]
+    [Tooltip("Name der Szene, die bei Kollision mit dem Spieler geladen wird")]
+    public string loseSceneName = "LoseScene";
     // ── Ziel ──────────────────────────────────────────────────────────────
     [Header("Ziel")]
     [Tooltip("Transform des Ziels, auf das der Enemy zulaufen soll")]
@@ -65,7 +70,20 @@ public class EnemyController : MonoBehaviour
     private Animator _animator;
     private Vector3 _velocity;          // vertikale Geschwindigkeit (Gravitation)
     private Vector3 _desiredDirection;  // für Gizmos
-
+    // ─────────────────────────────────────────────────────────────────────
+    /// <summary>
+    /// Wird von Unity aufgerufen, wenn der CharacterController während 
+    /// seiner Bewegung gegen einen anderen Collider stößt.
+    /// </summary>
+    void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        // Prüfen, ob das getroffene Objekt den Tag "Player" hat
+        if (hit.gameObject.CompareTag("Player"))
+        {
+            // Szene laden
+            SceneManager.LoadScene(loseSceneName);
+        }
+    }
     // ─────────────────────────────────────────────────────────────────────
     void Awake()
     {

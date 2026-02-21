@@ -5962,6 +5962,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ac5b183a348b354c960f48346ef7d54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  loseSceneName: EndScene
   target: {fileID: 1268830094}
   moveSpeed: 2
   rotationSpeed: 60
