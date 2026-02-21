@@ -662,6 +662,11 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 0
+--- !u!4 &784263214 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4207293392497186, guid: 11aaea5348574644a9eb4f4504fcce3f, type: 3}
+  m_PrefabInstance: {fileID: 451168049}
+  m_PrefabAsset: {fileID: 0}
 --- !u!850595691 &845213963
 LightingSettings:
   m_ObjectHideFlags: 0
@@ -956,6 +961,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2306e85cdb8733846a0c388e6b4dd847, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  player: {fileID: 784263214}
+  detectionRadius: 10
+  catchRadius: 1.5
+  moveSpeed: 1
+  rotationSpeed: 10
+  endSceneName: EndScene
 --- !u!1 &1500104862
 GameObject:
   m_ObjectHideFlags: 0
@@ -1277,7 +1288,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4926791329565251792, guid: fa73fdf400f69174395595aec2e704d9, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1.5085764
+      value: -7.69
       objectReference: {fileID: 0}
     - target: {fileID: 4926791329565251792, guid: fa73fdf400f69174395595aec2e704d9, type: 3}
       propertyPath: m_LocalRotation.w
