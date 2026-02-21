@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 /// <summary>
 /// EnemyController – bewegt den Enemy auf ein Ziel zu und weicht dabei

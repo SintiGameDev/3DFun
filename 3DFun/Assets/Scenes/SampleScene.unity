@@ -5902,7 +5902,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 1268830094}
   moveSpeed: 2
-  rotationSpeed: 60
+  rotationSpeed: 100
   gravity: 0
   detectionRadius: 0.5
   sphereCastRadius: 0.3
