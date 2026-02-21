@@ -8,27 +8,21 @@ using UnityEngine.UI;
 /// 
 /// Setup:
 ///  1. Leeres GameObject erstellen, dieses Script anhängen.
-///  2. Im Inspector Player Prefab und Goal Prefab zuweisen.
+///  2. Im Inspector die bereits in der Szene platzierten GameObjects für
+///     Player und Goal zuweisen (keine Prefabs – direkt die Scene-Objekte).
 ///  3. Ein Canvas mit einem vollflächigen schwarzen Image erstellen (FadePanel).
 ///     Das Image dem FadePanel-Feld zuweisen.
-///  4. Goal Prefab braucht einen Collider mit „Is Trigger" = true
-///     sowie das Script GoalTrigger.cs.
+///  4. Das Goal-Objekt braucht einen Collider mit „Is Trigger" = true.
+///     GoalTrigger.cs wird automatisch ergänzt, falls nicht vorhanden.
 /// </summary>
 public class GameManager : MonoBehaviour
 {
-    [Header("Prefabs")]
-    [Tooltip("Prefab des Spieler-Characters")]
-    public GameObject playerPrefab;
+    [Header("Scene-Objekte (keine Prefabs!)")]
+    [Tooltip("Das Player-GameObject, das bereits in der Szene platziert ist")]
+    public GameObject playerObject;
 
-    [Tooltip("Prefab des Ziel-Objekts")]
-    public GameObject goalPrefab;
-
-    [Header("Spawn-Positionen")]
-    [Tooltip("Spawn-Position des Spielers (leer = Weltorigin)")]
-    public Transform playerSpawnPoint;
-
-    [Tooltip("Spawn-Position des Ziels (leer = Weltorigin)")]
-    public Transform goalSpawnPoint;
+    [Tooltip("Das Ziel-GameObject, das bereits in der Szene platziert ist")]
+    public GameObject goalObject;
 
     [Header("Fade-Einstellungen")]
     [Tooltip("Schwarzes UI-Image, das für den Fade verwendet wird")]
@@ -42,21 +36,19 @@ public class GameManager : MonoBehaviour
     // Singleton
     public static GameManager Instance { get; private set; }
 
-    private GameObject _currentPlayer;
-    private GameObject _currentGoal;
     private bool _isTransitioning = false;
 
     // ──────────────────────────────────────────────
     void Awake()
     {
-        // Singleton-Pattern
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
             return;
         }
         Instance = this;
-        DontDestroyOnLoad(gameObject);
+        // Kein DontDestroyOnLoad – der Manager lebt nur in dieser Szene,
+        // da Player und Goal ebenfalls zur Szene gehören.
     }
 
     void Start()
@@ -70,37 +62,20 @@ public class GameManager : MonoBehaviour
             fadePanel.raycastTarget = false;
         }
 
-        SpawnObjects();
-    }
-
-    // ──────────────────────────────────────────────
-    /// <summary>Instanziiert Player und Goal in die Szene.</summary>
-    void SpawnObjects()
-    {
-        Vector3 playerPos = playerSpawnPoint != null ? playerSpawnPoint.position : Vector3.zero;
-        Quaternion playerRot = playerSpawnPoint != null ? playerSpawnPoint.rotation : Quaternion.identity;
-
-        Vector3 goalPos = goalSpawnPoint != null ? goalSpawnPoint.position : new Vector3(5f, 0f, 5f);
-        Quaternion goalRot = goalSpawnPoint != null ? goalSpawnPoint.rotation : Quaternion.identity;
-
-        if (playerPrefab != null)
-            _currentPlayer = Instantiate(playerPrefab, playerPos, playerRot);
-        else
-            Debug.LogWarning("[GameManager] Kein Player Prefab zugewiesen!");
-
-        if (goalPrefab != null)
+        // GoalTrigger sicherstellen
+        if (goalObject != null)
         {
-            _currentGoal = Instantiate(goalPrefab, goalPos, goalRot);
-
-            // GoalTrigger-Component automatisch hinzufügen, falls nicht vorhanden
-            GoalTrigger trigger = _currentGoal.GetComponent<GoalTrigger>();
+            GoalTrigger trigger = goalObject.GetComponent<GoalTrigger>();
             if (trigger == null)
-                trigger = _currentGoal.AddComponent<GoalTrigger>();
+                goalObject.AddComponent<GoalTrigger>();
         }
         else
         {
-            Debug.LogWarning("[GameManager] Kein Goal Prefab zugewiesen!");
+            Debug.LogWarning("[GameManager] Kein Goal-Objekt zugewiesen!");
         }
+
+        if (playerObject == null)
+            Debug.LogWarning("[GameManager] Kein Player-Objekt zugewiesen!");
     }
 
     // ──────────────────────────────────────────────
