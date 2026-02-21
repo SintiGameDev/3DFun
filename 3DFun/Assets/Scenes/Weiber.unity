@@ -3180,6 +3180,7 @@ GameObject:
   m_Component:
   - component: {fileID: 687121866}
   - component: {fileID: 687121867}
+  - component: {fileID: 687121868}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -3214,10 +3215,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b57c0c55ea1ba8a4c8b9cb4bffb7cfb4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerObject: {fileID: 0}
-  goalObject: {fileID: 0}
+  playerObject: {fileID: 750616893}
+  goalObject: {fileID: 1410392237}
   fadePanel: {fileID: 599414228}
   fadeDuration: 0.41
+--- !u!114 &687121868
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 687121865}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3930f3aaef6afd45831aa8108b113f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  collectiblePrefab: {fileID: 3160876146029708423, guid: 44da3e3ca4bc719409de29a72b76e85d, type: 3}
+  spawnPoints:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  targetScore: 5
+  endSceneName: WinScene
 --- !u!4 &692642026 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2927521263735000088, guid: 6e04acdfc8276d645b3e7e14136bc103, type: 3}
@@ -3404,6 +3425,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6e04acdfc8276d645b3e7e14136bc103, type: 3}
+--- !u!1 &750616893 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1773623360729482, guid: 11aaea5348574644a9eb4f4504fcce3f, type: 3}
+  m_PrefabInstance: {fileID: 215788521}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &763164009
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5733,6 +5759,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5347998221179573825, guid: 1b0b270f88d81af4ea4493b853ebaed8, type: 3}
   m_PrefabInstance: {fileID: 1238863654}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1410392237 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1479100929287967114, guid: 1549a34d7e02ac64c9395fdd9e19d2a2, type: 3}
+  m_PrefabInstance: {fileID: 5504558923017534876}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1412325906
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6029,6 +6060,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ac5b183a348b354c960f48346ef7d54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  loseSceneName: EndScene
   target: {fileID: 1268830094}
   moveSpeed: 2
   rotationSpeed: 100
